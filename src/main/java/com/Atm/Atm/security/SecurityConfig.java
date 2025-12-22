@@ -18,32 +18,48 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())   // Disable CSRF for REST APIs
-                .cors(cors -> cors.disable())   // Or configure properly
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.disable())
+            .sessionManagement(sm ->
+                sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
 
-                .authorizeHttpRequests(auth -> auth
+            .authorizeHttpRequests(auth -> auth
 
-                        // Allow UI (all .html files in static folder)
-                        .requestMatchers("/", "/index.html", "/atm-ui.html", "/**/*.html",
-                                "/css/**", "/js/**", "/images/**")
-                        .permitAll()
+                // Static UI
+                .requestMatchers(
+                    "/",
+                    "/index.html",
+                    "/atm-ui.html",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**"
+                ).permitAll()
 
-                        // Public APIs
-                        .requestMatchers("/atm/create", "/atm/login",
-                                "/atm/send-otp", "/atm/verify-otp")
-                        .permitAll()
+                // Public APIs
+                .requestMatchers(
+                    "/atm/create",
+                    "/atm/login",
+                    "/atm/send-otp",
+                    "/atm/verify-otp"
+                ).permitAll()
 
-                        // Protected APIs (require JWT)
-                        .requestMatchers("/atm/deposit", "/atm/withdraw",
-                                "/atm/update-pin", "/atm/delete")
-                        .authenticated()
+                // Protected APIs
+                .requestMatchers(
+                    "/atm/deposit",
+                    "/atm/withdraw",
+                    "/atm/update-pin",
+                    "/atm/delete"
+                ).authenticated()
 
-                        .anyRequest().permitAll()
-                );
+                .anyRequest().permitAll()
+            );
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 }
+
+
+
