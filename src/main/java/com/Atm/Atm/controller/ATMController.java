@@ -46,10 +46,11 @@ public ResponseEntity<?> deposit(
 
 
     // WITHDRAW — PROTECTED — JWT REQUIRED
-    @PostMapping("/withdraw")
-    public ResponseEntity<?> withdraw(@RequestBody ATMDTO dto) {
-        return ResponseEntity.ok(atmService.withdraw(dto));
-    }
+   @PostMapping("/withdraw")
+public ResponseEntity<?> withdraw(@RequestBody ATMDTO dto) {
+    return ResponseEntity.ok(atmService.withdraw(dto));
+}
+
 
     // UPDATE PIN — PROTECTED — JWT REQUIRED
     @PostMapping("/update-pin")
@@ -83,4 +84,5 @@ public ResponseEntity<?> deposit(
         return ResponseEntity.ok(atmService.verifyOtp(dto.getEmail(), dto.getOtp()));
     }
 }
+
 
