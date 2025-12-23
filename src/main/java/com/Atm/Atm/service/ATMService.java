@@ -147,35 +147,28 @@ public class ATMService {
     }
 
 
-  public ATMDTO deposit(ATMDTO dto) {
+ public ATMDTO deposit(ATMDTO dto, String token) {
 
-    System.out.println("===== DEPOSIT DEBUG =====");
-    System.out.println("Cardnumber received = " + dto.getCardnumber());
-    System.out.println("Amount received = " + dto.getAmount());
+    String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+    User user = userRepository.findByEmail(email);
 
-    User user = userRepository.findByCardnumber(dto.getCardnumber());
-    if (user == null) {
-        System.out.println("❌ USER NOT FOUND");
-        return null;
-    }
+    if (user == null)
+        throw new RuntimeException("User not found");
 
     int newBalance = user.getRemainingamount() + dto.getAmount();
     user.setRemainingamount(newBalance);
     user.setTotalamount(newBalance);
     userRepository.save(user);
 
-    boolean emailSent = emailService.sendEmail(
+    emailService.sendEmail(
             user.getEmail(),
             "Deposit Confirmation",
-            "₹" + dto.getAmount() +
-                    " deposited successfully.\nNew Balance: ₹" + newBalance
+            "₹" + dto.getAmount() + " deposited.\nNew Balance: ₹" + newBalance
     );
-
-    System.out.println("📧 EMAIL SENT = " + emailSent);
-    System.out.println("==========================");
 
     return convertToDTO(user);
 }
+
 
 
 public String withdraw(ATMDTO dto) {
@@ -278,6 +271,7 @@ public String updatePin(ATMDTO dto) {
         return true;
     }
 }
+
 
 
 
