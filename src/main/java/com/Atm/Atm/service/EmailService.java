@@ -8,54 +8,46 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    @Value("${BREVO_API_KEY}")
+    private String apiKey;
 
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
+    @Value("${mail.from}")
+    private String fromEmail;
 
-   @Value("${mail.from}")
-private String fromEmail;
+    private final RestTemplate restTemplate = new RestTemplate();
 
-
-    @Value("${email.enabled:true}")
-    private boolean emailEnabled;
-
-    /**
-     * Send email asynchronously
-     */
-    @Async
-    public boolean sendEmail(String to, String subject, String message) {
-
-        if (!emailEnabled) {
-            log.warn("Email service disabled. Skipping email.");
-            return false;
-        }
-
-        if (to == null || to.trim().isEmpty()) {
-            log.warn("Email not sent. Recipient is empty.");
-            return false;
-        }
+    public boolean sendEmail(String to, String subject, String content) {
 
         try {
-            SimpleMailMessage mail = new SimpleMailMessage();
-            mail.setFrom(fromEmail);
-            mail.setTo(to);
-            mail.setSubject(subject == null || subject.isBlank() ? "(No Subject)" : subject);
-            mail.setText(message == null || message.isBlank() ? "(No Message)" : message);
+            String url = "https://api.brevo.com/v3/smtp/email";
 
-            mailSender.send(mail);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", apiKey);
 
-            log.info("Email sent successfully to {}", to);
+            String body = """
+            {
+              "sender": { "email": "%s" },
+              "to": [{ "email": "%s" }],
+              "subject": "%s",
+              "textContent": "%s"
+            }
+            """.formatted(fromEmail, to, subject, content);
+
+            HttpEntity<String> entity = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(url, entity, String.class);
+
+            System.out.println("Email sent via Brevo API");
             return true;
 
-        } catch (Exception ex) {
-            log.error("Email sending failed", ex);
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
 }
+
+
 
