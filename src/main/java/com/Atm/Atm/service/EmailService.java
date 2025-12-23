@@ -1,11 +1,11 @@
 package com.Atm.Atm.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class EmailService {
@@ -19,7 +19,6 @@ public class EmailService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public boolean sendEmail(String to, String subject, String content) {
-
         try {
             String url = "https://api.brevo.com/v3/smtp/email";
 
@@ -39,7 +38,7 @@ public class EmailService {
             HttpEntity<String> entity = new HttpEntity<>(body, headers);
             restTemplate.postForEntity(url, entity, String.class);
 
-            System.out.println("Email sent via Brevo API");
+            System.out.println("Email sent via Brevo HTTP API");
             return true;
 
         } catch (Exception e) {
@@ -48,6 +47,3 @@ public class EmailService {
         }
     }
 }
-
-
-
