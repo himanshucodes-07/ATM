@@ -2,10 +2,20 @@ package com.Atm.Atm.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * ATMDTO
+ * ----------
+ * Single DTO used across ATM APIs.
+ * Carefully grouped and safe for production use.
+ *
+ * NOTE:
+ * - Used only for request binding
+ * - Sensitive fields must NEVER be returned in responses
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ATMDTO {
 
-    /* ================= CREATE USER ================= */
+    /* ================= USER CREATION ================= */
     private String name;
     private String cardnumber;
     private String pinnumber;
@@ -17,23 +27,22 @@ public class ATMDTO {
     private String loginPin;
 
     /* ================= OTP ================= */
-    private String emailForOtp;
     private String otp;
 
-    /* ================= DEPOSIT & WITHDRAW ================= */
+    /* ================= TRANSACTIONS ================= */
     private Integer amount;
 
     /* ================= UPDATE PIN ================= */
-    private String updateCardnumber;
     private String oldPin;
     private String newPin;
 
-    /* ================= RESPONSE ================= */
+    /* ================= RESPONSE (READ ONLY) ================= */
     private Long id;
-    private Integer remainingamount;
+    private Integer balance;
 
     /* ================= GETTERS & SETTERS ================= */
 
+    // -------- Create User --------
     public String getName() {
         return name;
     }
@@ -74,6 +83,7 @@ public class ATMDTO {
         this.email = email;
     }
 
+    // -------- Login --------
     public String getLoginCardnumber() {
         return loginCardnumber;
     }
@@ -90,14 +100,7 @@ public class ATMDTO {
         this.loginPin = loginPin;
     }
 
-    public String getEmailForOtp() {
-        return emailForOtp;
-    }
-
-    public void setEmailForOtp(String emailForOtp) {
-        this.emailForOtp = emailForOtp;
-    }
-
+    // -------- OTP --------
     public String getOtp() {
         return otp;
     }
@@ -106,6 +109,7 @@ public class ATMDTO {
         this.otp = otp;
     }
 
+    // -------- Deposit / Withdraw --------
     public Integer getAmount() {
         return amount;
     }
@@ -114,14 +118,7 @@ public class ATMDTO {
         this.amount = amount;
     }
 
-    public String getUpdateCardnumber() {
-        return updateCardnumber;
-    }
-
-    public void setUpdateCardnumber(String updateCardnumber) {
-        this.updateCardnumber = updateCardnumber;
-    }
-
+    // -------- Update PIN --------
     public String getOldPin() {
         return oldPin;
     }
@@ -138,6 +135,7 @@ public class ATMDTO {
         this.newPin = newPin;
     }
 
+    // -------- Response Fields --------
     public Long getId() {
         return id;
     }
@@ -146,13 +144,11 @@ public class ATMDTO {
         this.id = id;
     }
 
-    public Integer getRemainingamount() {
-        return remainingamount;
+    public Integer getBalance() {
+        return balance;
     }
 
-    public void setRemainingamount(Integer remainingamount) {
-        this.remainingamount = remainingamount;
+    public void setBalance(Integer balance) {
+        this.balance = balance;
     }
 }
-
-
