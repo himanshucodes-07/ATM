@@ -70,15 +70,6 @@ public class ATMDTO {
         return email;
     }
 
-    public String getAmountCardnumber() {
-    return amountCardnumber;
-}
-
-public void setAmountCardnumber(String amountCardnumber) {
-    this.amountCardnumber = amountCardnumber;
-}
-
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -163,4 +154,5 @@ public void setAmountCardnumber(String amountCardnumber) {
         this.remainingamount = remainingamount;
     }
 }
+
 
