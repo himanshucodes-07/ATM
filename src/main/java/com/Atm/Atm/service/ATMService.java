@@ -225,29 +225,49 @@ public class ATMService {
 
 
 
-    /* ------------------------ UPDATE PIN ------------------------ */
+/* ------------------------ UPDATE PIN (EMAIL + LOGS) ------------------------ */
 
-    public String updatePin(ATMDTO dto) {
+public String updatePin(ATMDTO dto) {
 
-        User user = userRepository.findByCardnumberAndPinnumber(
-                dto.getUpdateCardnumber(),
-                dto.getOldPin()
-        );
+    System.out.println("====== UPDATE PIN START ======");
 
-        if (user == null)
-            return "Invalid old PIN!";
+    User user = userRepository.findByCardnumberAndPinnumber(
+            dto.getUpdateCardnumber(),
+            dto.getOldPin()
+    );
 
-        user.setPinnumber(dto.getNewPin());
-        userRepository.save(user);
-
-        emailService.sendEmail(
-                user.getEmail(),
-                "PIN Updated",
-                "Your ATM PIN has been successfully updated."
-        );
-
-        return "PIN Updated Successfully!";
+    if (user == null) {
+        System.out.println("❌ INVALID CARD OR OLD PIN");
+        return "Invalid old PIN!";
     }
+
+    user.setPinnumber(dto.getNewPin());
+    userRepository.save(user);
+
+    System.out.println("✅ PIN UPDATED FOR CARD = " + user.getCardnumber());
+    System.out.println("📧 EMAIL = " + user.getEmail());
+
+    // Email Template (PIN Update)
+    String message =
+            "Dear Customer,\n\n" +
+            "This is to inform you that your ATM PIN has been successfully changed.\n\n" +
+            "If you did NOT perform this action, please contact Customer Care immediately at 1800 1200 1200.\n\n" +
+            "For your security, never share your PIN with anyone.\n\n" +
+            "Warm Regards,\n" +
+            "MyBank ATM Services";
+
+    boolean emailSent = emailService.sendEmail(
+            user.getEmail(),
+            "ATM PIN Updated Successfully",
+            message
+    );
+
+    System.out.println("📨 PIN UPDATE EMAIL SENT = " + emailSent);
+    System.out.println("====== UPDATE PIN END ======");
+
+    return "PIN Updated Successfully!";
+}
+
 
 
     /* ------------------------ DELETE ACCOUNT ------------------------ */
@@ -269,3 +289,4 @@ public class ATMService {
         return true;
     }
 }
+
