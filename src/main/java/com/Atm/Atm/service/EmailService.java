@@ -18,32 +18,37 @@ public class EmailService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public boolean sendEmail(String to, String subject, String content) {
-        try {
-            String url = "https://api.brevo.com/v3/smtp/email";
+  public boolean sendEmail(String to, String subject, String content) {
+    try {
+        String url = "https://api.brevo.com/v3/smtp/email";
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("api-key", apiKey);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("api-key", apiKey);
 
-            String body = """
-            {
-              "sender": { "email": "%s" },
-              "to": [{ "email": "%s" }],
-              "subject": "%s",
-              "textContent": "%s"
-            }
-            """.formatted(fromEmail, to, subject, content);
-
-            HttpEntity<String> entity = new HttpEntity<>(body, headers);
-            restTemplate.postForEntity(url, entity, String.class);
-
-            System.out.println("Email sent via Brevo HTTP API");
-            return true;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        String body = """
+        {
+          "sender": { "email": "%s" },
+          "to": [{ "email": "%s" }],
+          "subject": "%s",
+          "textContent": "%s"
         }
+        """.formatted(fromEmail, to, subject, content);
+
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
+
+        var response = restTemplate.postForEntity(url, entity, String.class);
+
+        System.out.println("BREVO STATUS  : " + response.getStatusCode());
+        System.out.println("BREVO BODY    : " + response.getBody());
+
+        return response.getStatusCode().is2xxSuccessful();
+
+    } catch (Exception e) {
+        System.out.println("BREVO EXCEPTION:");
+        e.printStackTrace();
+        return false;
     }
 }
+
+
