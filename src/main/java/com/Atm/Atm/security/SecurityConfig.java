@@ -30,36 +30,38 @@ public class SecurityConfig {
             .sessionManagement(sm ->
                 sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            .authorizeHttpRequests(auth -> auth
+          .authorizeHttpRequests(auth -> auth
 
-                // Public UI
-                .requestMatchers(
-                    "/",
-                    "/index.html",
-                    "/atm-ui.html",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**"
-                ).permitAll()
+    // Public UI
+    .requestMatchers(
+        "/",
+        "/index.html",
+        "/atm-ui.html",
+        "/css/**",
+        "/js/**",
+        "/images/**"
+    ).permitAll()
 
-                // Public APIs
-                .requestMatchers(
-                    "/atm/create",
-                    "/atm/login",
-                    "/atm/send-otp",
-                    "/atm/verify-otp"
-                ).permitAll()
+    // Public APIs
+    .requestMatchers(
+        "/atm/create",
+        "/atm/login",
+        "/atm/send-otp",
+        "/atm/verify-otp",
+        "/debug/**"
+    ).permitAll()
 
-                // Protected APIs
-                .requestMatchers(
-                    "/atm/deposit",
-                    "/atm/withdraw",
-                    "/atm/update-pin",
-                    "/atm/delete"
-                ).authenticated()
+    // Protected APIs
+    .requestMatchers(
+        "/atm/deposit",
+        "/atm/withdraw",
+        "/atm/update-pin",
+        "/atm/delete"
+    ).authenticated()
 
-                .anyRequest().permitAll()
-            );
+    .anyRequest().permitAll()
+);
+
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -82,3 +84,4 @@ public class SecurityConfig {
         return source;
     }
 }
+
