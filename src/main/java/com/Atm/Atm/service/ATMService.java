@@ -44,7 +44,6 @@ public class ATMService {
         dto.setLoginCardnumber(null);
         dto.setLoginPin(null);
         dto.setAmount(null);
-        dto.setAmountCardnumber(null);
 
         return dto;
     }
@@ -279,6 +278,7 @@ public String updatePin(ATMDTO dto) {
         return true;
     }
 }
+
 
 
 
