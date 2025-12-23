@@ -148,27 +148,22 @@ public class ATMService {
     }
 
 
-   public ATMDTO deposit(ATMDTO dto) {
+  public ATMDTO deposit(ATMDTO dto) {
 
-    // 🔍 DEBUG LOGS (VERY IMPORTANT)
     System.out.println("===== DEPOSIT DEBUG =====");
-    System.out.println("Cardnumber received = " + dto.getAmountCardnumber());
+    System.out.println("Cardnumber received = " + dto.getCardnumber());
     System.out.println("Amount received = " + dto.getAmount());
 
-    User user = userRepository.findByCardnumber(dto.getAmountCardnumber());
-
+    User user = userRepository.findByCardnumber(dto.getCardnumber());
     if (user == null) {
         System.out.println("❌ USER NOT FOUND");
         return null;
     }
 
     int newBalance = user.getRemainingamount() + dto.getAmount();
-
     user.setRemainingamount(newBalance);
     user.setTotalamount(newBalance);
     userRepository.save(user);
-
-    System.out.println("✅ USER FOUND: " + user.getEmail());
 
     boolean emailSent = emailService.sendEmail(
             user.getEmail(),
@@ -187,22 +182,19 @@ public class ATMService {
 public String withdraw(ATMDTO dto) {
 
     System.out.println("===== WITHDRAW DEBUG =====");
-    System.out.println("Cardnumber received = " + dto.getAmountCardnumber());
+    System.out.println("Cardnumber received = " + dto.getCardnumber());
     System.out.println("Amount received = " + dto.getAmount());
 
-    User user = userRepository.findByCardnumber(dto.getAmountCardnumber());
-
+    User user = userRepository.findByCardnumber(dto.getCardnumber());
     if (user == null) {
         System.out.println("❌ USER NOT FOUND");
         return "Card number not found!";
     }
 
-    if (dto.getAmount() > user.getRemainingamount()) {
+    if (dto.getAmount() > user.getRemainingamount())
         return "Insufficient Balance!";
-    }
 
     int newBalance = user.getRemainingamount() - dto.getAmount();
-
     user.setRemainingamount(newBalance);
     user.setTotalamount(newBalance);
     userRepository.save(user);
@@ -219,6 +211,7 @@ public String withdraw(ATMDTO dto) {
 
     return "Withdraw Successful! Remaining Balance: ₹" + newBalance;
 }
+
 
 
 
@@ -286,6 +279,7 @@ public String updatePin(ATMDTO dto) {
         return true;
     }
 }
+
 
 
 
