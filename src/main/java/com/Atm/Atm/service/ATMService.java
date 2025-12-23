@@ -184,44 +184,41 @@ public class ATMService {
 }
 
 
+public String withdraw(ATMDTO dto) {
 
-    /* ------------------------ WITHDRAW (BANK TEMPLATE) ------------------------ */
+    System.out.println("===== WITHDRAW DEBUG =====");
+    System.out.println("Cardnumber received = " + dto.getAmountCardnumber());
+    System.out.println("Amount received = " + dto.getAmount());
 
-    public String withdraw(ATMDTO dto) {
+    User user = userRepository.findByCardnumber(dto.getAmountCardnumber());
 
-        User user = userRepository.findByCardnumber(dto.getAmountCardnumber());
-        if (user == null)
-            return "Card number not found!";
-
-        if (dto.getAmount() > user.getRemainingamount())
-            return "Insufficient Balance!";
-
-        int newBalance = user.getRemainingamount() - dto.getAmount();
-
-        user.setRemainingamount(newBalance);
-        user.setTotalamount(newBalance);
-
-        userRepository.save(user);
-
-        // Email Template (Withdraw)
-        String message =
-                "Dear Customer,\n\n" +
-                        "Thank you for banking with us.\n\n" +
-                        "This is to notify you that an amount of ₹" + dto.getAmount() +
-                        " has been withdrawn from your account " + user.getCardnumber() + ".\n\n" +
-                        "Your updated balance is ₹" + newBalance + ".\n\n" +
-                        "If this transaction was not made by you, contact Customer Care at 1800 1200 1200 immediately.\n\n" +
-                        "Warm Regards,\n" +
-                        "MyBank ATM Services";
-
-        emailService.sendEmail(
-                user.getEmail(),
-                "Withdrawal Alert",
-                message
-        );
-
-        return "Withdraw Successful! Remaining Balance: ₹" + newBalance;
+    if (user == null) {
+        System.out.println("❌ USER NOT FOUND");
+        return "Card number not found!";
     }
+
+    if (dto.getAmount() > user.getRemainingamount()) {
+        return "Insufficient Balance!";
+    }
+
+    int newBalance = user.getRemainingamount() - dto.getAmount();
+
+    user.setRemainingamount(newBalance);
+    user.setTotalamount(newBalance);
+    userRepository.save(user);
+
+    boolean emailSent = emailService.sendEmail(
+            user.getEmail(),
+            "Withdrawal Alert",
+            "₹" + dto.getAmount() +
+                    " withdrawn.\nRemaining Balance: ₹" + newBalance
+    );
+
+    System.out.println("📧 EMAIL SENT = " + emailSent);
+    System.out.println("==========================");
+
+    return "Withdraw Successful! Remaining Balance: ₹" + newBalance;
+}
 
 
 
@@ -289,5 +286,6 @@ public String updatePin(ATMDTO dto) {
         return true;
     }
 }
+
 
 
