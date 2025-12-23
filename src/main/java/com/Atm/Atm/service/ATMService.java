@@ -171,37 +171,33 @@ public class ATMService {
 
 
 
-public String withdraw(ATMDTO dto) {
+public WithdrawResponseDTO withdraw(WithdrawRequestDTO dto, String token) {
 
-    System.out.println("===== WITHDRAW DEBUG =====");
-    System.out.println("Cardnumber received = " + dto.getCardnumber());
-    System.out.println("Amount received = " + dto.getAmount());
+    String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+    User user = userRepository.findByEmail(email);
 
-    User user = userRepository.findByCardnumber(dto.getCardnumber());
-    if (user == null) {
-        System.out.println("❌ USER NOT FOUND");
-        return "Card number not found!";
-    }
+    if (user == null)
+        throw new RuntimeException("User not found");
 
     if (dto.getAmount() > user.getRemainingamount())
-        return "Insufficient Balance!";
+        throw new RuntimeException("Insufficient balance");
 
     int newBalance = user.getRemainingamount() - dto.getAmount();
     user.setRemainingamount(newBalance);
     user.setTotalamount(newBalance);
     userRepository.save(user);
 
-    boolean emailSent = emailService.sendEmail(
+    emailService.sendEmail(
             user.getEmail(),
-            "Withdrawal Alert",
+            "Withdrawal Successful",
             "₹" + dto.getAmount() +
                     " withdrawn.\nRemaining Balance: ₹" + newBalance
     );
 
-    System.out.println("📧 EMAIL SENT = " + emailSent);
-    System.out.println("==========================");
-
-    return "Withdraw Successful! Remaining Balance: ₹" + newBalance;
+    return new WithdrawResponseDTO(
+            "Withdraw successful",
+            newBalance
+    );
 }
 
 
@@ -271,6 +267,7 @@ public String updatePin(ATMDTO dto) {
         return true;
     }
 }
+
 
 
 
