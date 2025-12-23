@@ -148,40 +148,40 @@ public class ATMService {
     }
 
 
-    /* ------------------------ DEPOSIT (FIXED) ------------------------ */
+   public ATMDTO deposit(ATMDTO dto) {
 
-    public ATMDTO deposit(ATMDTO dto) {
+    // 🔍 DEBUG LOGS (VERY IMPORTANT)
+    System.out.println("===== DEPOSIT DEBUG =====");
+    System.out.println("Cardnumber received = " + dto.getAmountCardnumber());
+    System.out.println("Amount received = " + dto.getAmount());
 
-        User user = userRepository.findByCardnumber(dto.getAmountCardnumber());
-        if (user == null)
-            return null;
+    User user = userRepository.findByCardnumber(dto.getAmountCardnumber());
 
-        int newBalance = user.getRemainingamount() + dto.getAmount();
-
-        user.setRemainingamount(newBalance);
-        user.setTotalamount(newBalance);
-
-        userRepository.save(user);
-
-        // Email Template (Deposit)
-        String message =
-                "Dear Customer,\n\n" +
-                        "Thank you for banking with us.\n\n" +
-                        "We are pleased to inform you that an amount of ₹" + dto.getAmount() +
-                        " has been successfully deposited into your account " + user.getCardnumber() + ".\n\n" +
-                        "Your updated balance is ₹" + newBalance + ".\n\n" +
-                        "For any queries or support, please contact Customer Care at 1800 1200 1200.\n\n" +
-                        "Warm Regards,\n" +
-                        "MyBank ATM Services";
-
-        emailService.sendEmail(
-                user.getEmail(),
-                "Deposit Confirmation",
-                message
-        );
-
-        return convertToDTO(user);
+    if (user == null) {
+        System.out.println("❌ USER NOT FOUND");
+        return null;
     }
+
+    int newBalance = user.getRemainingamount() + dto.getAmount();
+
+    user.setRemainingamount(newBalance);
+    user.setTotalamount(newBalance);
+    userRepository.save(user);
+
+    System.out.println("✅ USER FOUND: " + user.getEmail());
+
+    boolean emailSent = emailService.sendEmail(
+            user.getEmail(),
+            "Deposit Confirmation",
+            "₹" + dto.getAmount() +
+                    " deposited successfully.\nNew Balance: ₹" + newBalance
+    );
+
+    System.out.println("📧 EMAIL SENT = " + emailSent);
+    System.out.println("==========================");
+
+    return convertToDTO(user);
+}
 
 
 
@@ -289,4 +289,5 @@ public String updatePin(ATMDTO dto) {
         return true;
     }
 }
+
 
