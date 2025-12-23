@@ -36,15 +36,14 @@ public class ATMController {
     }
 
     // DEPOSIT — PROTECTED — JWT REQUIRED
-    @PostMapping("/deposit")
-    public ResponseEntity<?> deposit(@RequestBody ATMDTO dto) {
-        var result = atmService.deposit(dto);
+   @PostMapping("/deposit")
+public ResponseEntity<?> deposit(
+        @RequestBody ATMDTO dto,
+        @RequestHeader("Authorization") String token
+) {
+    return ResponseEntity.ok(atmService.deposit(dto, token));
+}
 
-        if (result == null)
-            return ResponseEntity.status(404).body("Card not found!");
-
-        return ResponseEntity.ok(result);
-    }
 
     // WITHDRAW — PROTECTED — JWT REQUIRED
     @PostMapping("/withdraw")
@@ -84,3 +83,4 @@ public class ATMController {
         return ResponseEntity.ok(atmService.verifyOtp(dto.getEmail(), dto.getOtp()));
     }
 }
+
