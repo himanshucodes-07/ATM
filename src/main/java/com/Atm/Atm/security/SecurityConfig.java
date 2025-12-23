@@ -14,52 +14,29 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+   @Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
 
-        http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.disable())
-            .sessionManagement(sm ->
-                sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+    config.setAllowedOrigins(List.of(
+        "https://atm-j405.onrender.com"
+    ));
 
-            .authorizeHttpRequests(auth -> auth
+    config.setAllowedMethods(List.of(
+        "GET", "POST", "PUT", "DELETE", "OPTIONS"
+    ));
 
-                // Static UI
-                .requestMatchers(
-                    "/",
-                    "/index.html",
-                    "/atm-ui.html",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**"
-                ).permitAll()
+    config.setAllowedHeaders(List.of("*"));
+    config.setAllowCredentials(false);
 
-                // Public APIs
-                .requestMatchers(
-                    "/atm/create",
-                    "/atm/login",
-                    "/atm/send-otp",
-                    "/atm/verify-otp"
-                ).permitAll()
+    UrlBasedCorsConfigurationSource source =
+            new UrlBasedCorsConfigurationSource();
 
-                // Protected APIs
-                .requestMatchers(
-                    "/atm/deposit",
-                    "/atm/withdraw",
-                    "/atm/update-pin",
-                    "/atm/delete"
-                ).authenticated()
-
-                .anyRequest().permitAll()
-            );
-
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
+    source.registerCorsConfiguration("/**", config);
+    return source;
 }
+
+
 
 
 
