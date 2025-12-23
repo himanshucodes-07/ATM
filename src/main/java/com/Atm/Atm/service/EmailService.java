@@ -17,8 +17,9 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    @Value("${spring.mail.username}")
-    private String fromEmail;
+   @Value("${mail.from}")
+private String fromEmail;
+
 
     @Value("${email.enabled:true}")
     private boolean emailEnabled;
@@ -57,3 +58,4 @@ public class EmailService {
         }
     }
 }
+
