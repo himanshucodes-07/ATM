@@ -1,65 +1,58 @@
 package com.Atm.Atm.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+
+    public EmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     @Value("${spring.mail.username}")
-    private String fromEmail;   // Sender Gmail address
+    private String fromEmail;
 
     @Value("${email.enabled:true}")
     private boolean emailEnabled;
 
     /**
-     * Send Email - returns true if sent successfully, false if failed.
+     * Send email asynchronously
      */
+    @Async
     public boolean sendEmail(String to, String subject, String message) {
 
+        if (!emailEnabled) {
+            log.warn("Email service disabled. Skipping email.");
+            return false;
+        }
+
+        if (to == null || to.trim().isEmpty()) {
+            log.warn("Email not sent. Recipient is empty.");
+            return false;
+        }
+
         try {
-            // Email feature ON/OFF
-            if (!emailEnabled) {
-                System.out.println("⚠ Email Service DISABLED — Skipping email.");
-                return false;
-            }
-
-            // Validate 'to'
-            if (to == null || to.trim().isEmpty()) {
-                System.out.println("⚠ Email NOT sent — Recipient email is empty!");
-                return false;
-            }
-
-            // Validate subject
-            if (subject == null || subject.trim().isEmpty()) {
-                subject = "(No Subject)";
-            }
-
-            // Validate message
-            if (message == null || message.trim().isEmpty()) {
-                message = "(No Message)";
-            }
-
-            // Create and send email
             SimpleMailMessage mail = new SimpleMailMessage();
-            mail.setTo(to);
-            mail.setSubject(subject);
-            mail.setText(message);
             mail.setFrom(fromEmail);
+            mail.setTo(to);
+            mail.setSubject(subject == null || subject.isBlank() ? "(No Subject)" : subject);
+            mail.setText(message == null || message.isBlank() ? "(No Message)" : message);
 
             mailSender.send(mail);
 
-            System.out.println("✔ Email sent successfully to " + to);
+            log.info("Email sent successfully to {}", to);
             return true;
 
-        } catch (Exception e) {
-            System.out.println("❌ Email sending FAILED: " + e.getMessage());
+        } catch (Exception ex) {
+            log.error("Email sending failed", ex);
             return false;
         }
     }
